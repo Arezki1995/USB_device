@@ -11,7 +11,8 @@ libusb_context *context;
 int status=libusb_init(&context);
 if(status!=0) 
 	{
-	perror("libusb_init"); exit(-1);
+	perror("libusb_init"); 
+	exit(-1);
 	}
 
 // fin initialisation 
@@ -22,7 +23,8 @@ libusb_device **list;
 ssize_t count=libusb_get_device_list(context,&list);
 if(count<0) 
 	{
-		perror("libusb_get_device_list"); exit(-1);
+		perror("libusb_get_device_list"); 
+		exit(-1);
 	}
 	ssize_t i=0;
 for(i=0;i<count;i++)
