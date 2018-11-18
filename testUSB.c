@@ -2,32 +2,19 @@
 #include<stdlib.h>
 #include<libusb-1.0/libusb.h>
 
-/*
-Device Found @ (Bus:Address) 2:2
-Vendor ID 0x01c4f
-Product ID 0x034
-
-I am trying to detect my USB mouse
-
-WE COULD USE 
--------------------------------------------------------------------------------------
-libusb_device_handle* libusb_open_device_with_vid_pid 	( 	libusb_context *  	ctx,
-															uint16_t  	vendor_id,
-															uint16_t  	product_id ) 	
-
--------------------------------------------------------------------------------------
-to search but this function has limitations that may constrain us
-
-*/
+#define CONFIG_INDEX 0
+	//DEVICE TO SEARCH
+#define MY_ID_VENDOR  0x01c4f
+#define MY_ID_PRODUCT  0x034
 /////////////////////////////////////////////////////////////////////////////////////////////
 //GLOBAL VARIABLES
 libusb_device_handle* myDeviceHandle = NULL;
 libusb_context* context  = NULL;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-void detectDevice( int myIdVendor, int myIdProduct, libusb_device_handle* myDeviceHandle){
+void detectDevice( int myIdVendor, int myIdProduct, libusb_device_handle** myDeviceHandle){
 	
-	printf("Searching Device:\nIdVendor:0x0%x\t\tIdProduct:0x0%x\n\n",myIdVendor,myIdProduct);
+	printf("Searching Device:\n\tIdVendor:0x0%x\n\tIdProduct:0x0%x\n\n",myIdVendor,myIdProduct);
 	
 
 
@@ -63,11 +50,11 @@ void detectDevice( int myIdVendor, int myIdProduct, libusb_device_handle* myDevi
 	  	
 	  		//Searching Specific device Vendor and product
 	  		if(desc.idProduct==myIdProduct && desc.idVendor==myIdVendor){
-	  			printf("Device Found @ (Bus:Address) %d:%d\n",bus,address);
+	  			printf("Device Found @ \n\t(Bus:Address) %d:%d\n\n",bus,address);
 	  			
 
 	  			//Obtaining found device handle
-	  			int openStatus= libusb_open ( device, &myDeviceHandle);
+	  			int openStatus= libusb_open ( device, myDeviceHandle);
 	  			
 	  			//Open status verification
 	  			if(openStatus !=0){
@@ -86,19 +73,23 @@ void detectDevice( int myIdVendor, int myIdProduct, libusb_device_handle* myDevi
 
 void printConfigDescriptor(struct libusb_config_descriptor* configDesc){
 	printf("INDEX 0 CONFIGURATION\n");
-	printf("bLength:\t%d\n",configDesc->bLength);
-	printf("bLength:\t%d\n",configDesc->bDescriptorType);
-	printf("bLength:\t%d\n",configDesc->wTotalLength);
-	printf("bNumInterfaces:\t%d\n",configDesc->bNumInterfaces);
-	printf("bConfigurationValue:\t%d\n",configDesc->bConfigurationValue);
-	printf("iConfiguration:\t%d\n",configDesc->iConfiguration);
-	printf("bmAttributes:\t%d\n",configDesc->bmAttributes);
-	printf("MaxPower:\t%d\n",configDesc->MaxPower);
+	printf("\tbLength\t\t\t:%d\n",configDesc->bLength);
+	printf("\tbDescriptorType\t\t:%d\n",configDesc->bDescriptorType);
+	printf("\twTotalLength\t\t:%d\n",configDesc->wTotalLength);
+	printf("\tbNumInterfaces\t\t:%d\n",configDesc->bNumInterfaces);
+	printf("\tbConfigurationValue\t:%d\n",configDesc->bConfigurationValue);
+	printf("\tiConfiguration\t\t:%d\n",configDesc->iConfiguration);
+	printf("\tbmAttributes\t\t:%d\n",configDesc->bmAttributes);
+	printf("\tMaxPower\t\t:%d\n",configDesc->MaxPower);
+	printf("\t...\n\n");
+	//FIELDS THAT ARE NOT PRINTED
+		//FIELD OF INTEREST TO GET THE USB INTERFACES
+			//const struct libusb_interface* interface
 	
-	//FIELDS TO PRINTF
-	//const struct libusb_interface* interface
-	//const unsigned char* extra
-	//int extra_length
+		//const unsigned char* extra
+		
+		//int extra_length
+	
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 void configure(libusb_device_handle* myDeviceHandle){
@@ -107,6 +98,57 @@ void configure(libusb_device_handle* myDeviceHandle){
 	libusb_device* 	myDevice	= libusb_get_device(myDeviceHandle);
 	struct libusb_config_descriptor* 	configDesc;
 	
+	//Getting configuration at index 0;
+	int getConfDescStatus=libusb_get_config_descriptor(myDevice,CONFIG_INDEX,&configDesc);
+	if(getConfDescStatus!=0){
+		perror("libusb_get_config_descriptor():");
+	}
+	printf("configDescriptor: %p\n\n",configDesc);
+
+	//printing Some Config descriptor fields
+	printConfigDescriptor(configDesc);
+	
+	const struct libusb_interface*  interfaceArray= configDesc->interface;
+	printf("inteface array: 0x%p\n\n",interfaceArray);
+	////////
+	printf("Started detatching interfaces...\n");
+	for(uint8_t i=0; i< configDesc->bNumInterfaces; i++){
+		  		printf("\t> detatching interface %d \n",i);
+				int detachStatus=libusb_detach_kernel_driver (myDeviceHandle, interfaceArray[i].altsetting[0].bInterfaceNumber);
+				if(detachStatus!=0){
+					perror("libusb_detach_kernel_driver()");
+				}
+
+	}
+	printf("finished detaching interfaces...\n\n");	
+
+	
+	//SETTING INTERFACE
+	printf("setting configuration of index %d ...\n\n",CONFIG_INDEX);
+	int SetConfStatus=libusb_set_configuration ( myDeviceHandle, configDesc->bConfigurationValue);
+	if(SetConfStatus!=0){
+		perror("libusb_set_configuration()");
+	}
+	
+	//Iterating ConfigDescriptor interfaces
+	int NUM_ALT=0;
+	printf("Started Claiming interfaces...\n");
+	for(uint8_t i=0; i< configDesc->bNumInterfaces; i++){
+		
+		printf("\tInterface with index %d:\n",i);
+			
+			uint8_t interfaceNb = interfaceArray[i].altsetting[NUM_ALT].bInterfaceNumber;
+			
+			printf("\t\tclaiming interface number %d\n",interfaceNb);
+			int claimStatus=libusb_claim_interface(myDeviceHandle, interfaceNb);	
+			if(claimStatus!=0){printf("\tInterface %d:\n",i);
+				perror("libusb_claim_interface():");
+			}
+		
+			
+	}
+	printf("finished Claiming interfaces\n\n");
+
 	//Getting configuration of index 0
 	uint8_t	index = 0;
 	int ConfigStatus	= libusb_get_config_descriptor(myDevice, index ,&configDesc); 
@@ -114,16 +156,34 @@ void configure(libusb_device_handle* myDeviceHandle){
 		perror("libusb_get_config_descriptor()");
 		exit(-1);
 	}
-	//printConfigDescriptor(configDesc);
+
+
+	printf("Getting endpoints\n");
+	for(uint8_t i=0; i< configDesc->bNumInterfaces; i++){
+		
+		printf("\tInterface %d:\n",i);
 	
+			uint8_t NbEndPoints = interfaceArray[i].altsetting[NUM_ALT].bNumEndpoints;
+			for(int k=0; k<NbEndPoints; k++){
+				printf("\t\tEndpoint index %d:\n",i);
+				const struct libusb_endpoint_descriptor endPointDesc= interfaceArray[i].altsetting[NUM_ALT].endpoint[k];
+				printf("\t\t\tDescriptor@\t\t: 0x%p\n",&endPointDesc);
+				printf("\t\t\tDescriptor Type\t\t: %d\n",endPointDesc.bDescriptorType);
+				printf("\t\t\tEndpoint@\t\t: %d\n",endPointDesc.bEndpointAddress);
+				printf("\t\t\tEP wMaxPacketSize\t: %d\n",endPointDesc.wMaxPacketSize);
+			}
+
+			
+	}
+
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 int main(){
 	
-	int myIdVendor = 0x01c4f;
-	int myIdProduct = 0x034;
+
 	
 	//Context type init
 	int status=libusb_init(&context);
@@ -134,7 +194,17 @@ int main(){
 		exit(-1);
 	}
 
-	detectDevice( myIdVendor, myIdProduct,myDeviceHandle);
+	detectDevice( MY_ID_VENDOR, MY_ID_PRODUCT,&myDeviceHandle);
+	if(myDeviceHandle!=NULL){
+		printf("DEV HANDLE: %p\n\n",myDeviceHandle);
+	}
+	else{
+		printf("THE DEVICE YOU REQUIRED IS NOT CONNECTED TO PC\n");
+		printf("\tHINT: plug in the device an restart program\n");
+		exit(-1);
+	}
+
+	
 	
 	configure(myDeviceHandle);
 	
