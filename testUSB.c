@@ -4,12 +4,13 @@
 
 #define CONFIG_INDEX 0
 	//DEVICE TO SEARCH
-#define MY_ID_VENDOR  0x01c4f
-#define MY_ID_PRODUCT  0x034
+#define MY_ID_VENDOR  0x01bcf
+#define MY_ID_PRODUCT  0x05
 /////////////////////////////////////////////////////////////////////////////////////////////
 //GLOBAL VARIABLES
 libusb_device_handle* myDeviceHandle = NULL;
 libusb_context* context  = NULL;
+const struct libusb_endpoint_descriptor* endpoint_interupt = NULL;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void detectDevice( int myIdVendor, int myIdProduct, libusb_device_handle** myDeviceHandle){
@@ -149,6 +150,7 @@ void configure(libusb_device_handle* myDeviceHandle){
 	}
 	printf("finished Claiming interfaces\n\n");
 
+
 	//Getting configuration of index 0
 	uint8_t	index = 0;
 	int ConfigStatus	= libusb_get_config_descriptor(myDevice, index ,&configDesc); 
@@ -160,23 +162,41 @@ void configure(libusb_device_handle* myDeviceHandle){
 
 	printf("Getting endpoints\n");
 	for(uint8_t i=0; i< configDesc->bNumInterfaces; i++){
-		
-		printf("\tInterface %d:\n",i);
-	
+			printf("\tInterface %d:\n",i);
 			uint8_t NbEndPoints = interfaceArray[i].altsetting[NUM_ALT].bNumEndpoints;
 			for(int k=0; k<NbEndPoints; k++){
 				printf("\t\tEndpoint index %d:\n",i);
-				const struct libusb_endpoint_descriptor endPointDesc= interfaceArray[i].altsetting[NUM_ALT].endpoint[k];
+				const struct libusb_endpoint_descriptor endPointDesc= interfaceArray[i].altsetting[NUM_ALT].endpoint[k];				
 				printf("\t\t\tDescriptor@\t\t: 0x%p\n",&endPointDesc);
 				printf("\t\t\tDescriptor Type\t\t: %d\n",endPointDesc.bDescriptorType);
 				printf("\t\t\tEndpoint@\t\t: %d\n",endPointDesc.bEndpointAddress);
 				printf("\t\t\tEP wMaxPacketSize\t: %d\n",endPointDesc.wMaxPacketSize);
+				int endpoint_transfer_type = endPointDesc.bmAttributes & 3 ; //keeping only the transfer types bits to compare 				
+				if ( endpoint_transfer_type == 3){
+					printf("found endpoint working through interuptions and stored.\t\t\n\n");					
+					endpoint_interupt = &endPointDesc;				
+				} 
 			}
-
-			
 	}
+	
+
+
+	//releasing interfaces and closing device
+	printf("closing device : number of interfaces to release before :   %d ... \n", configDesc->bNumInterfaces );	
+	for(uint8_t i=0; i< configDesc->bNumInterfaces; i++){
+		  		printf("\t> releasing interface  %d \n",i);
+				int detachStatus=libusb_release_interface (myDeviceHandle, interfaceArray[i].altsetting[0].bInterfaceNumber);
+				if(detachStatus!=0){
+					perror("libusb_detach_kernel_driver_2()");
+				}
+				printf("\t> interface n° %d released ... \n\n", interfaceArray[i].altsetting[0].bInterfaceNumber );
+	} 
+	libusb_close (myDeviceHandle);
+	printf("device handle closed ...\n\n");	
 
 }
+
+
 
 
 
@@ -207,6 +227,7 @@ int main(){
 	
 	
 	configure(myDeviceHandle);
+	
 	
 	//exit context
 	libusb_exit(context);
