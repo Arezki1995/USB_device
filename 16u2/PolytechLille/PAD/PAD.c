@@ -8,8 +8,13 @@ int main(void)
 {
 	SetupHardware();
 	GlobalInterruptEnable();
-	for (;;)
-	  USB_USBTask();
+	
+	
+	for (;;){
+		USB_USBTask();
+		Serial_SendByte('c');
+	}
+	 
 }
 
 /** Configures the board hardware and chip peripherals for the project's functionality. */
@@ -187,7 +192,6 @@ void sendStatusOtherButtons(void)
 		{
 			/* Sends the state of the other buttons status To the host */
 			uint8_t newStatus = getStatusOfButtons();
-			
 			//check if the code recieved has the form of BTN status by anding with the mask if it is it should return non-zero (true)
 			//check if at least one of the buttons [1-4] is ON if so returns non-zero (true)
 			//both conditions must be satisfied to send the button state to the host otherwise it does nothing 

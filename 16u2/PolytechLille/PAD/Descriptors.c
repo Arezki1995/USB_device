@@ -48,7 +48,7 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
 			.Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
 
 			.TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
-			.TotalInterfaces        = 1,
+			.TotalInterfaces        = 2,
 
 			.ConfigurationNumber    = 1,
 			.ConfigurationStrIndex  = NO_DESCRIPTOR,
@@ -58,14 +58,29 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
 			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(500)
 		},
 
-	.PADInterface =
+	.PADInterfaceLED =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
 
-			.InterfaceNumber        = INTERFACE_ID_PAD,
+			.InterfaceNumber        = INTERFACE_ID_LED,
 			.AlternateSetting       = 0,
 
-			.TotalEndpoints         = 5,
+			.TotalEndpoints         = 2,
+
+			.Class                  = USB_CSCP_NoDeviceClass,
+			.SubClass               = USB_CSCP_NoDeviceSubclass,
+			.Protocol               = USB_CSCP_NoDeviceProtocol,
+
+			.InterfaceStrIndex      = NO_DESCRIPTOR
+		},
+	.PADInterfaceBTN =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+
+			.InterfaceNumber        = INTERFACE_ID_BTN,
+			.AlternateSetting       = 0,
+
+			.TotalEndpoints         = 2,
 
 			.Class                  = USB_CSCP_NoDeviceClass,
 			.SubClass               = USB_CSCP_NoDeviceSubclass,

@@ -23,11 +23,14 @@
 		typedef struct
 		{
 			USB_Descriptor_Configuration_Header_t Config;
-			// Relay Board Interface
-			USB_Descriptor_Interface_t            PADInterface;
+			
+			// Interface
+			USB_Descriptor_Interface_t            PADInterfaceLED;
 			
 			USB_Descriptor_Endpoint_t             IN_Endpoint_1;
 			USB_Descriptor_Endpoint_t             IN_Endpoint_2;
+			
+			USB_Descriptor_Interface_t            PADInterfaceBTN;
 			
 			USB_Descriptor_Endpoint_t             OUT_Endpoint_1;
 			USB_Descriptor_Endpoint_t             OUT_Endpoint_2;
@@ -40,7 +43,8 @@
 		 */
 		enum InterfaceDescriptors_t
 		{
-			INTERFACE_ID_PAD = 0, /**< Relay board interface descriptor ID */
+			INTERFACE_ID_LED = 0, /* interface for LED descriptor ID */
+			INTERFACE_ID_BTN = 1, /* interface for BTN descriptor ID */
 		};
 
 		/** Enum for the device string descriptor IDs within the device. Each string descriptor should
