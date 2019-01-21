@@ -137,18 +137,18 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
 
-const USB_Descriptor_String_t PROGMEM PAD_LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
+const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 /** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ManufacturerString = USB_STRING_DESCRIPTOR(L"POLYTECH");
+const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"Zecorp");
 
 /** Product descriptor string. This is a Unicode string containing the product's details in human readable form,
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ProductString = USB_STRING_DESCRIPTOR(L"Kawabounga");
+const USB_Descriptor_String_t PROGMEM ProductString = USB_STRING_DESCRIPTOR(L"AREZKI-ANAS");
 
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
@@ -181,16 +181,16 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 			switch (DescriptorNumber)
 			{
 				case STRING_ID_Language:
-					Address = &PAD_LanguageString;
-					Size    = pgm_read_byte(&PAD_LanguageString.Header.Size);
+					Address = &LanguageString;
+					Size    = pgm_read_byte(&LanguageString.Header.Size);
 					break;
 				case STRING_ID_Manufacturer:
-					Address = &PAD_ManufacturerString;
-					Size    = pgm_read_byte(&PAD_ManufacturerString.Header.Size);
+					Address = &ManufacturerString;
+					Size    = pgm_read_byte(&ManufacturerString.Header.Size);
 					break;
 				case STRING_ID_Product:
-					Address = &PAD_ProductString;
-					Size    = pgm_read_byte(&PAD_ProductString.Header.Size);
+					Address = &ProductString;
+					Size    = pgm_read_byte(&ProductString.Header.Size);
 					break;
 			}
 

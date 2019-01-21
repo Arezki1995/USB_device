@@ -62,8 +62,8 @@
 		/** Endpoint address of the PAD IN endpoints. (device to host) */
 		//BTN joystick
 		#define PAD_IN_1_EPADDR        (EP_TYPE_INTERRUPT | ENDPOINT_DIR_IN  | 1)
-		//Other Btns
-		#define PAD_IN_2_EPADDR        (EP_TYPE_INTERRUPT | ENDPOINT_DIR_IN  | 2)
+		//Other Btns choosed 8 to have a distinct addresse 
+		#define PAD_IN_2_EPADDR        (EP_TYPE_INTERRUPT | ENDPOINT_DIR_IN  | 8)
 
 		/** Endpoint address of the PAD OUT endpoints. (host to device) */
 		//LED pin 13

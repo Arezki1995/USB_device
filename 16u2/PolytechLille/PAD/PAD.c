@@ -12,7 +12,7 @@ int main(void)
 	
 	for (;;){
 		USB_USBTask();
-		Serial_SendByte('c');
+		Serial_SendByte('b');
 	}
 	 
 }
