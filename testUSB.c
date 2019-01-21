@@ -3,9 +3,10 @@
 #include<libusb-1.0/libusb.h>
 
 #define CONFIG_INDEX 0
-	//DEVICE TO SEARCH
-#define MY_ID_VENDOR  0x01bcf
-#define MY_ID_PRODUCT  0x05
+
+//DEVICE TO SEARCH 04f2:b3d8
+#define MY_ID_VENDOR  0xf00f
+#define MY_ID_PRODUCT 0x6666
 /////////////////////////////////////////////////////////////////////////////////////////////
 //GLOBAL VARIABLES
 libusb_device_handle* myDeviceHandle = NULL;
@@ -101,6 +102,7 @@ void configure(libusb_device_handle* myDeviceHandle){
 	
 	//Getting configuration at index 0;
 	int getConfDescStatus=libusb_get_config_descriptor(myDevice,CONFIG_INDEX,&configDesc);
+	printf("getConfDescStatus : %d\n",getConfDescStatus);
 	if(getConfDescStatus!=0){
 		perror("libusb_get_config_descriptor():");
 	}
@@ -154,7 +156,9 @@ void configure(libusb_device_handle* myDeviceHandle){
 	//Getting configuration of index 0
 	uint8_t	index = 0;
 	int ConfigStatus	= libusb_get_config_descriptor(myDevice, index ,&configDesc); 
+	
 	if(ConfigStatus!= 0){
+		
 		perror("libusb_get_config_descriptor()");
 		exit(-1);
 	}
@@ -167,7 +171,7 @@ void configure(libusb_device_handle* myDeviceHandle){
 			for(int k=0; k<NbEndPoints; k++){
 				printf("\t\tEndpoint index %d:\n",i);
 				const struct libusb_endpoint_descriptor endPointDesc= interfaceArray[i].altsetting[NUM_ALT].endpoint[k];				
-				printf("\t\t\tDescriptor@\t\t: 0x%p\n",&endPointDesc);
+				printf("\t\t\tDescriptor@\t\t: %p\n",&endPointDesc);
 				printf("\t\t\tDescriptor Type\t\t: %d\n",endPointDesc.bDescriptorType);
 				printf("\t\t\tEndpoint@\t\t: %d\n",endPointDesc.bEndpointAddress);
 				printf("\t\t\tEP wMaxPacketSize\t: %d\n",endPointDesc.wMaxPacketSize);

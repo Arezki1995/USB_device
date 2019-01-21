@@ -55,7 +55,7 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
 
 			.ConfigAttributes       = USB_CONFIG_ATTR_RESERVED,
 
-			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(500)
+			.MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
 		},
 
 	.PADInterfaceLED =
@@ -73,6 +73,27 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
 
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
+
+	.IN_Endpoint_1  =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = PAD_IN_1_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT| ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = PAD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		},
+	
+	.IN_Endpoint_2  =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = PAD_IN_2_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT| ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = PAD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		},
+
 	.PADInterfaceBTN =
 		{
 			.Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
@@ -88,19 +109,35 @@ const USB_Descriptor_Configuration_t PROGMEM PAD_ConfigurationDescriptor =
 
 			.InterfaceStrIndex      = NO_DESCRIPTOR
 		},
+	
+	.OUT_Endpoint_1  =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = PAD_OUT_1_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT| ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = PAD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		},
+	
+	.OUT_Endpoint_2  =
+		{
+			.Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+
+			.EndpointAddress        = PAD_OUT_2_EPADDR,
+			.Attributes             = (EP_TYPE_INTERRUPT| ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+			.EndpointSize           = PAD_EPSIZE,
+			.PollingIntervalMS      = 0x05
+		}
+	
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests
  *  the string descriptor with index 0 (the first index). It is actually an array of 16-bit integers, which indicate
  *  via the language ID table available at USB.org what languages the device supports for its string descriptors.
  */
-const USB_Descriptor_String_t PROGMEM PAD_LanguageString =
-{
-	.Header                 = {.Size = USB_STRING_LEN(1), .Type = DTYPE_String},
 
-	.UnicodeString          = {LANGUAGE_ID_ENG}
-};
-
+const USB_Descriptor_String_t PROGMEM PAD_LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 /** Manufacturer descriptor string. This is a Unicode string containing the manufacturer's details in human readable
  *  form, and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
@@ -111,12 +148,8 @@ const USB_Descriptor_String_t PROGMEM PAD_ManufacturerString = USB_STRING_DESCRI
  *  and is read out upon request by the host when the appropriate string ID is requested, listed in the Device
  *  Descriptor.
  */
-const USB_Descriptor_String_t PROGMEM PAD_ProductString = USB_STRING_DESCRIPTOR(L"PAD");
+const USB_Descriptor_String_t PROGMEM PAD_ProductString = USB_STRING_DESCRIPTOR(L"Kawabounga");
 
-/** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
- *  series of uppercase hexadecimal digits.
- */
-//const USB_Descriptor_String_t PROGMEM PAD_SerialString = USB_STRING_DESCRIPTOR(L"00001");
 
 /** This function is called by the library when in device mode, and must be overridden (see library "USB Descriptors"
  *  documentation) by the application code so that the address and size of a requested descriptor can be given
@@ -163,6 +196,7 @@ uint16_t CALLBACK_USB_GetDescriptor(const uint16_t wValue,
 
 			break;
 	}
+
 
 	*DescriptorAddress = Address;
 	return Size;

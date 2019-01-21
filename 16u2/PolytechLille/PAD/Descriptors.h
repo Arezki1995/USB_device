@@ -24,16 +24,15 @@
 		{
 			USB_Descriptor_Configuration_Header_t Config;
 			
-			// Interface
+			// LED INTERFACE
 			USB_Descriptor_Interface_t            PADInterfaceLED;
+				USB_Descriptor_Endpoint_t             IN_Endpoint_1;
+				USB_Descriptor_Endpoint_t             IN_Endpoint_2;
 			
-			USB_Descriptor_Endpoint_t             IN_Endpoint_1;
-			USB_Descriptor_Endpoint_t             IN_Endpoint_2;
-			
+			// LED INTERFACE
 			USB_Descriptor_Interface_t            PADInterfaceBTN;
-			
-			USB_Descriptor_Endpoint_t             OUT_Endpoint_1;
-			USB_Descriptor_Endpoint_t             OUT_Endpoint_2;
+				USB_Descriptor_Endpoint_t             OUT_Endpoint_1;
+				USB_Descriptor_Endpoint_t             OUT_Endpoint_2;
 
 		} USB_Descriptor_Configuration_t;
 
@@ -73,7 +72,7 @@
 		#define PAD_OUT_2_EPADDR       (EP_TYPE_INTERRUPT | ENDPOINT_DIR_OUT | 4)
 
 		/** Size in bytes of the PAD IN and OUT endpoints. */
-		#define PAD_EPSIZE           1
+		#define PAD_EPSIZE           8
 
 
 	/* Function Prototypes: */
