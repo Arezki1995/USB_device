@@ -1,7 +1,3 @@
-/** \file
- *  Header file for Descriptors.c.
- */
-
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
@@ -29,7 +25,7 @@
 				USB_Descriptor_Endpoint_t             IN_Endpoint_1;
 				USB_Descriptor_Endpoint_t             IN_Endpoint_2;
 			
-			// LED INTERFACE
+			// BTN INTERFACE
 			USB_Descriptor_Interface_t            PADInterfaceBTN;
 				USB_Descriptor_Endpoint_t             OUT_Endpoint_1;
 				USB_Descriptor_Endpoint_t             OUT_Endpoint_2;
@@ -61,15 +57,15 @@
 
 		/** Endpoint address of the PAD IN endpoints. (device to host) */
 		//BTN joystick
-		#define PAD_IN_1_EPADDR        (EP_TYPE_INTERRUPT | ENDPOINT_DIR_IN  | 1)
+		#define PAD_IN_1_EPADDR        (ENDPOINT_DIR_IN  | 1)
 		//Other Btns choosed 8 to have a distinct addresse 
-		#define PAD_IN_2_EPADDR        (EP_TYPE_INTERRUPT | ENDPOINT_DIR_IN  | 8)
+		#define PAD_IN_2_EPADDR        (ENDPOINT_DIR_IN  | 2)
 
 		/** Endpoint address of the PAD OUT endpoints. (host to device) */
 		//LED pin 13
-		#define PAD_OUT_1_EPADDR       (EP_TYPE_INTERRUPT | ENDPOINT_DIR_OUT | 3)
+		#define PAD_OUT_1_EPADDR       (ENDPOINT_DIR_OUT | 3)
 		//other LEDs
-		#define PAD_OUT_2_EPADDR       (EP_TYPE_INTERRUPT | ENDPOINT_DIR_OUT | 4)
+		#define PAD_OUT_2_EPADDR       (ENDPOINT_DIR_OUT | 4)
 
 		/** Size in bytes of the PAD IN and OUT endpoints. */
 		#define PAD_EPSIZE           8

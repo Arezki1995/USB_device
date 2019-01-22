@@ -64,3 +64,6 @@ backup:
 	@echo "====RESET"
 	dfu-programmer atmega16u2 reset
 	@echo "Restore Complete"
+
+list:
+	@sudo lsusb -v | grep "f00f:6666" -A88

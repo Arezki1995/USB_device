@@ -1,8 +1,14 @@
 
 #include "PAD.h"
 #include "../../LUFA/Drivers/Peripheral/Serial.h"
+
+// one byte 
+#define EP_SIZE 1
+#define EP_BANKS 1
+
 static uint8_t old_LedState;
 static uint8_t old_BtnState;
+
 
 int main(void)
 {
@@ -12,7 +18,9 @@ int main(void)
 	
 	for (;;){
 		USB_USBTask();
-		Serial_SendByte('b');
+		listenOrderOtherLeds();
+		//testLEDs();
+		
 	}
 	 
 }
@@ -32,17 +40,51 @@ void SetupHardware(void)
 	/* Hardware Initialization */
 	USB_Init();
 	Serial_Init(9600, false);
-
 	
+	
+}
+
+void testLEDs(void){
+		Serial_SendByte( 'a' );
+		_delay_ms(50);
+		Serial_SendByte( 'b' );
+		_delay_ms(50);
+		Serial_SendByte( 'c' );
+		_delay_ms(50);
+		Serial_SendByte( 'd' );
+		_delay_ms(50);
+		Serial_SendByte( 'e' );
+		_delay_ms(50);
+		Serial_SendByte( 'f' );
+		_delay_ms(50);
+		
+		Serial_SendByte( 'A' );
+		_delay_ms(50);
+		Serial_SendByte( 'B' );
+		_delay_ms(50);
+		Serial_SendByte( 'C' );
+		_delay_ms(50);
+		Serial_SendByte( 'D' );
+		_delay_ms(50);
+		Serial_SendByte( 'E' );
+		_delay_ms(50);
+		Serial_SendByte( 'F' );
+		_delay_ms(50);
+}
+
+///////////////////////////////////////////////////////////
+void EVENT_USB_Device_ConfigurationChanged(void){
+	////        addr size type banks
+	//Endpoint_ConfigureEndpoint 	( Number, Type, Direction, Size, Banks ) 	
+	Endpoint_ConfigureEndpoint 	( PAD_IN_1_EPADDR  , EP_SIZE, EP_TYPE_INTERRUPT , EP_BANKS );
+	Endpoint_ConfigureEndpoint 	( PAD_IN_2_EPADDR  , EP_SIZE, EP_TYPE_INTERRUPT , EP_BANKS );
+	Endpoint_ConfigureEndpoint 	( PAD_OUT_1_EPADDR , EP_SIZE, EP_TYPE_INTERRUPT , EP_BANKS );
+	Endpoint_ConfigureEndpoint 	( PAD_OUT_2_EPADDR , EP_SIZE, EP_TYPE_INTERRUPT , EP_BANKS );
+
 }
 ///////////////////////////////////////////////////////////
 /////	PROCESS FUNCTIONS
 
-//Pour la communication série avec l’ATMega328p,la bibliothèque LUFA offre ces fonctions:
- 	//Serial_Init
-	//Serial_SendByte
-	//Serial_IsCharReceived
-	//Serial_ReceiveByte.
 
 void ProcessLedOrder(uint8_t LedRequest){
 		//send to the Atmega328p the new state of LEDs if there is any change otherwise nothing
@@ -58,9 +100,9 @@ uint8_t getStatusOfButtons(void){
 		//send to the host the status of the Buttons recieved from the Atmega328p
 		uint16_t  new_etatBtn = Serial_ReceiveByte();
 			
-		while(!Serial_IsCharReceived()){
+		//while(!Serial_IsCharReceived()){
 				//wait until we are sure a char is recieved
-		}
+		//}
 			
 			// decomposition: (uint16_t) Serial_ReceiveByte();
 			// uint16_t = high uint8_t +  low uint8_t
